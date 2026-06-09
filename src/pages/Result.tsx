@@ -61,7 +61,7 @@ function EmailCapture() {
     <div className="rounded-2xl border border-white/10 bg-card p-5 card-shadow">
       <p className="font-body font-bold text-white">
         I'm building a course on this — the actual mechanics of LLMs for
-        developers, no fluff.
+        vibe coders, no fluff.
       </p>
       <p className="mt-1 text-sm text-white/50">
         Drop your email and I'll let you know when it's ready. No spam, just one
