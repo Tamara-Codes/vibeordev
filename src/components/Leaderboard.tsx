@@ -13,6 +13,14 @@ const RANK_MEDAL = [
   { from: '#d97706', to: '#92400e', color: '#ffffff' }, // bronze
 ]
 
+/** ms → compact "m:ss" (or "0:00" when no time was recorded). */
+function formatTime(ms: number): string {
+  const totalSeconds = Math.round((ms ?? 0) / 1000)
+  const m = Math.floor(totalSeconds / 60)
+  const s = totalSeconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
 interface LeaderboardProps {
   topToday: LeaderboardEntry[]
   topAllTime: LeaderboardEntry[]
@@ -67,6 +75,12 @@ function Row({
       </span>
       <span className="shrink-0 text-white/50" title={entry.personaName}>
         <Icon name={personaIcon(entry.personaId)} className="h-4 w-4" />
+      </span>
+      <span
+        className="w-12 shrink-0 text-right text-xs tabular-nums text-white/40"
+        title="Time to finish"
+      >
+        {formatTime(entry.timeMs)}
       </span>
       <span className="w-14 shrink-0 text-right font-head font-bold tabular-nums text-cyan">
         {entry.score}

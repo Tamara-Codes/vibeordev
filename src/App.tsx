@@ -51,6 +51,7 @@ export default function App() {
     const entry = await addEntry({
       name: playerName,
       score: result.score,
+      timeMs: result.timeMs,
       personaId: persona.id,
       personaName: persona.name,
       personaEmoji: persona.emoji,

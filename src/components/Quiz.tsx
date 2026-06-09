@@ -7,6 +7,8 @@ import Icon from './icons'
 export interface QuizResult {
   score: number
   total: number
+  /** total time to complete the quiz, in ms */
+  timeMs: number
   answers: AnswerRecord[]
   weakSpots: Category[]
 }
@@ -27,6 +29,7 @@ export default function Quiz({ playerName, onComplete }: QuizProps) {
     phase,
     selected,
     score,
+    totalTimeMs,
     answers,
     weakSpots,
     selectAnswer,
@@ -37,7 +40,7 @@ export default function Quiz({ playerName, onComplete }: QuizProps) {
 
   useEffect(() => {
     if (isFinished) {
-      onComplete({ score, total, answers, weakSpots })
+      onComplete({ score, total, timeMs: totalTimeMs, answers, weakSpots })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFinished])

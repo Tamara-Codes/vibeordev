@@ -38,6 +38,8 @@ export interface AnswerRecord {
   correct: boolean
   /** true when the question timed out with no answer */
   timedOut: boolean
+  /** ms spent answering this question (capped at the question time limit) */
+  timeMs: number
 }
 
 export interface LeaderboardEntry {
@@ -47,6 +49,8 @@ export interface LeaderboardEntry {
   personaId: string
   personaName: string
   personaEmoji: string
+  /** total time to complete the quiz, in ms — the tiebreaker for equal scores */
+  timeMs: number
   /** epoch ms */
   timestamp: number
 }

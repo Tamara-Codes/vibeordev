@@ -12,6 +12,7 @@ interface ScoreRow {
   id: string
   name: string
   score: number
+  time_ms: number
   persona_id: string
   persona_name: string
   persona_emoji: string
@@ -23,6 +24,7 @@ function toEntry(r: ScoreRow): LeaderboardEntry {
     id: r.id,
     name: r.name,
     score: r.score,
+    timeMs: r.time_ms ?? 0,
     personaId: r.persona_id,
     personaName: r.persona_name,
     personaEmoji: r.persona_emoji,
@@ -30,7 +32,8 @@ function toEntry(r: ScoreRow): LeaderboardEntry {
   }
 }
 
-/** Top scores, highest first (ties broken by most recent). Null if offline. */
+/** Top scores, best first: highest score, then fastest time, then most recent.
+ *  Null if offline. */
 export async function fetchTopScores(
   limit = 100,
 ): Promise<LeaderboardEntry[] | null> {
@@ -38,8 +41,11 @@ export async function fetchTopScores(
   try {
     const { data, error } = await supabase
       .from('scores')
-      .select('id,name,score,persona_id,persona_name,persona_emoji,created_at')
+      .select(
+        'id,name,score,time_ms,persona_id,persona_name,persona_emoji,created_at',
+      )
       .order('score', { ascending: false })
+      .order('time_ms', { ascending: true })
       .order('created_at', { ascending: false })
       .limit(limit)
     if (error || !data) return null
@@ -58,6 +64,7 @@ export async function submitScore(
     const { data, error } = await supabase.rpc('submit_score', {
       p_name: entry.name,
       p_score: entry.score,
+      p_time_ms: entry.timeMs,
       p_persona_id: entry.personaId,
       p_persona_name: entry.personaName,
       p_persona_emoji: entry.personaEmoji,

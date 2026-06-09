@@ -5,13 +5,20 @@ import { fetchTopScores, isNameTaken, submitScore } from '../lib/scores'
 
 const DAY = 86_400_000
 
-/** Collapse duplicate names to one row each, keeping the highest score. */
+/** True when `a` is a better result than `b`: higher score, or same score in
+ *  less time. The shared tiebreak rule, reused by sort/dedupe/upsert. */
+function isBetter(a: LeaderboardEntry, b: LeaderboardEntry): boolean {
+  if (a.score !== b.score) return a.score > b.score
+  return (a.timeMs ?? 0) < (b.timeMs ?? 0)
+}
+
+/** Collapse duplicate names to one row each, keeping each player's best run. */
 function dedupe(list: LeaderboardEntry[]): LeaderboardEntry[] {
   const best = new Map<string, LeaderboardEntry>()
   for (const e of list) {
     const key = e.name.trim().toLowerCase()
     const cur = best.get(key)
-    if (!cur || e.score > cur.score) best.set(key, e)
+    if (!cur || isBetter(e, cur)) best.set(key, e)
   }
   return [...best.values()]
 }
@@ -33,7 +40,9 @@ function upsertLocal(
     (e) => e.name.trim().toLowerCase() === entry.name.trim().toLowerCase(),
   )
   if (i < 0) return { next: [...list, entry], result: entry }
-  const keepNew = entry.score >= list[i].score
+  // Keep the better run (higher score, or same score but faster). On an exact
+  // tie, keep the new row so the player still sees their just-played entry.
+  const keepNew = !isBetter(list[i], entry)
   const result = keepNew
     ? entry
     : { ...list[i], id: entry.id, timestamp: entry.timestamp }
@@ -43,7 +52,9 @@ function upsertLocal(
 }
 
 const byScore = (a: LeaderboardEntry, b: LeaderboardEntry) =>
-  b.score - a.score || b.timestamp - a.timestamp
+  b.score - a.score ||
+  (a.timeMs ?? 0) - (b.timeMs ?? 0) ||
+  b.timestamp - a.timestamp
 
 export function useLeaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[]>(() => load())

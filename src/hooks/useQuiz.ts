@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { AnswerRecord, Category, Question } from '../types'
 import { questions as RAW } from '../data/questions'
 
@@ -40,6 +40,8 @@ export function useQuiz() {
   const [phase, setPhase] = useState<Phase>('answering')
   const [selected, setSelected] = useState<number | null>(null)
   const [answers, setAnswers] = useState<AnswerRecord[]>([])
+  // When the current question started being answered — used to time each answer.
+  const questionStartRef = useRef<number>(performance.now())
 
   const current = deck[index]
   const total = deck.length
@@ -54,12 +56,18 @@ export function useQuiz() {
       }
       setPhase('answering')
       setSelected(null)
+      questionStartRef.current = performance.now()
       return next
     })
   }, [deck.length])
 
-  const commit = useCallback((record: AnswerRecord) => {
-    setAnswers((prev) => [...prev, record])
+  const commit = useCallback((record: Omit<AnswerRecord, 'timeMs'>) => {
+    // Cap at the question limit so a backgrounded tab can't blow up the total.
+    const timeMs = Math.min(
+      QUESTION_SECONDS * 1000,
+      Math.max(0, performance.now() - questionStartRef.current),
+    )
+    setAnswers((prev) => [...prev, { ...record, timeMs }])
     setPhase('feedback')
   }, [])
 
@@ -94,9 +102,11 @@ export function useQuiz() {
     setPhase('answering')
     setSelected(null)
     setAnswers([])
+    questionStartRef.current = performance.now()
   }, [])
 
   const score = answers.filter((a) => a.correct).length
+  const totalTimeMs = answers.reduce((sum, a) => sum + a.timeMs, 0)
 
   /** The two categories with the most wrong answers (need at least 1 wrong). */
   const weakSpots = useMemo<Category[]>(() => {
@@ -118,6 +128,7 @@ export function useQuiz() {
     selected,
     answers,
     score,
+    totalTimeMs,
     weakSpots,
     selectAnswer,
     handleTimeout,

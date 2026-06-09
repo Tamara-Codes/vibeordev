@@ -52,11 +52,18 @@ create table if not exists public.scores (
   name          text not null,
   name_key      text generated always as (lower(btrim(name))) stored unique,
   score         int  not null constraint scores_score_range check (score >= 0 and score <= 20),
+  -- Total quiz time in ms. Tiebreaker for equal scores: faster ranks higher.
+  time_ms       int  not null default 0 constraint scores_time_nonneg check (time_ms >= 0),
   persona_id    text not null,
   persona_name  text not null,
   persona_emoji text not null,
   created_at    timestamptz not null default now()
 );
+
+-- Add time_ms to tables created before the speed tiebreaker existed.
+alter table public.scores add column if not exists time_ms int not null default 0;
+alter table public.scores drop constraint if exists scores_time_nonneg;
+alter table public.scores add constraint scores_time_nonneg check (time_ms >= 0);
 
 -- Bound the score to the real quiz range (20 questions). Caps how far a
 -- tampered anon RPC call can inflate a leaderboard entry. Re-applied here so
@@ -74,10 +81,18 @@ create policy "scores are readable"
   using (true);
 
 -- ...but inserts/updates go only through this function (no direct write grant),
--- which upserts by name keeping the higher score — so replays don't duplicate.
+-- which upserts by name keeping the player's BEST run. "Better" = higher score,
+-- or the same score in less time — so replays don't duplicate and the leaderboard
+-- shows each player's strongest result.
+--
+-- The old 5-arg version is dropped first: adding p_time_ms changes the signature,
+-- which would otherwise create a second overloaded function rather than replace it.
+drop function if exists public.submit_score(text, int, text, text, text);
+
 create or replace function public.submit_score(
   p_name text,
   p_score int,
+  p_time_ms int,
   p_persona_id text,
   p_persona_name text,
   p_persona_emoji text
@@ -90,20 +105,35 @@ as $$
 declare
   result public.scores;
 begin
-  insert into public.scores (name, score, persona_id, persona_name, persona_emoji)
-  values (btrim(p_name), p_score, p_persona_id, p_persona_name, p_persona_emoji)
+  insert into public.scores (name, score, time_ms, persona_id, persona_name, persona_emoji)
+  values (btrim(p_name), p_score, greatest(p_time_ms, 0), p_persona_id, p_persona_name, p_persona_emoji)
   on conflict (name_key) do update set
-    score         = greatest(public.scores.score, excluded.score),
-    persona_id    = case when excluded.score >= public.scores.score then excluded.persona_id    else public.scores.persona_id    end,
-    persona_name  = case when excluded.score >= public.scores.score then excluded.persona_name  else public.scores.persona_name  end,
-    persona_emoji = case when excluded.score >= public.scores.score then excluded.persona_emoji else public.scores.persona_emoji end,
-    created_at    = case when excluded.score >= public.scores.score then now()                  else public.scores.created_at    end
+    -- The incoming run wins on a strictly higher score, or an equal score with
+    -- a faster time. Every field below moves together based on this test.
+    score         = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then excluded.score else public.scores.score end,
+    time_ms       = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then excluded.time_ms else public.scores.time_ms end,
+    persona_id    = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then excluded.persona_id else public.scores.persona_id end,
+    persona_name  = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then excluded.persona_name else public.scores.persona_name end,
+    persona_emoji = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then excluded.persona_emoji else public.scores.persona_emoji end,
+    created_at    = case when excluded.score >  public.scores.score
+                          or (excluded.score = public.scores.score and excluded.time_ms < public.scores.time_ms)
+                         then now() else public.scores.created_at end
   returning * into result;
   return result;
 end;
 $$;
 
-grant execute on function public.submit_score(text, int, text, text, text)
+grant execute on function public.submit_score(text, int, int, text, text, text)
   to anon, authenticated;
 
 -- ---------------------------------------------------------------------------
