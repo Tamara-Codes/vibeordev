@@ -129,8 +129,15 @@ export default function App() {
       </main>
 
       <footer className="relative z-10 pb-6 text-center text-xs text-white/30">
-        Vibe Coder or True Dev? · just for fun · we store your name &amp; score on
-        the leaderboard
+        Built by Tamara —{' '}
+        <a
+          href="https://tamara.rocks"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline transition hover:text-white/60"
+        >
+          tamara.rocks
+        </a>
       </footer>
     </div>
   )
