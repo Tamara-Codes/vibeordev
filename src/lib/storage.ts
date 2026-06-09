@@ -9,6 +9,8 @@ export const KEYS = {
   // Set once a device has been counted, so replays don't inflate the count.
   counted: 'vctd:counted',
   emails: 'vctd:emails',
+  // The poll option this device voted for (so we show results, not the form).
+  pollVote: 'vctd:pollVote',
   name: 'vctd:lastName',
   streakLast: 'vctd:streakLastDay',
   streakCount: 'vctd:streakCount',

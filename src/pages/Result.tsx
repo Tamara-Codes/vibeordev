@@ -3,6 +3,7 @@ import type { Category, LeaderboardEntry, Persona } from '../types'
 import ResultCard from '../components/ResultCard'
 import ShareButtons from '../components/ShareButtons'
 import Leaderboard from '../components/Leaderboard'
+import Poll from '../components/Poll'
 import Icon from '../components/icons'
 import { KEYS, readJSON, writeJSON } from '../lib/storage'
 import { addSubscriber } from '../lib/subscribers'
@@ -48,10 +49,10 @@ function EmailCapture() {
     return (
       <div className="rounded-2xl border border-good/30 bg-good/10 p-5 text-center">
         <p className="inline-flex items-center gap-1.5 font-body font-bold text-good">
-          <Icon name="sparkles" className="h-4 w-4" /> You're in!
+          <Icon name="sparkles" className="h-4 w-4" /> You're on the list!
         </p>
         <p className="mt-1 text-sm text-white/60">
-          Weekly AI challenges are heading to your inbox.
+          I'll email you once — the day the course launches.
         </p>
       </div>
     )
@@ -60,10 +61,12 @@ function EmailCapture() {
   return (
     <div className="rounded-2xl border border-white/10 bg-card p-5 card-shadow">
       <p className="font-body font-bold text-white">
-        Get weekly AI challenges
+        I'm building a course on this — the actual mechanics of LLMs for
+        developers, no fluff.
       </p>
       <p className="mt-1 text-sm text-white/50">
-        One sharp question a week. Level up. No spam.
+        Drop your email and I'll let you know when it's ready. No spam, just one
+        email when it launches.
       </p>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <input
@@ -79,13 +82,13 @@ function EmailCapture() {
           disabled={!valid}
           className="rounded-xl bg-gradient-to-r from-violet to-cyan px-5 py-2.5 font-body font-bold text-white transition enabled:hover:brightness-110 enabled:active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Subscribe
+          Notify me
         </button>
       </div>
       <p className="mt-3 text-xs leading-relaxed text-white/40">
-        By subscribing you agree we can email you weekly AI challenges. We store
-        your email for this purpose only, never share it, and you can
-        unsubscribe any time via the link in every email.
+        By signing up you agree we can email you once when the course launches.
+        We store your email for this purpose only, never share it, and you can
+        unsubscribe any time via the link in the email.
       </p>
     </div>
   )
@@ -154,6 +157,7 @@ export default function Result({
           currentId={currentId}
           total={total}
         />
+        <Poll />
         <EmailCapture />
       </div>
     </div>
