@@ -6,6 +6,7 @@ import Leaderboard from '../components/Leaderboard'
 import Icon from '../components/icons'
 import { KEYS, readJSON, writeJSON } from '../lib/storage'
 import { addSubscriber } from '../lib/subscribers'
+import { track } from '../lib/analytics'
 
 interface ResultProps {
   persona: Persona
@@ -36,6 +37,7 @@ function EmailCapture() {
     if (!valid) return
     // Save to the shared Supabase list (fire-and-forget; fails soft offline).
     void addSubscriber(email.trim())
+    track('waitlist_signup')
     // Keep a local copy so the form remembers you've subscribed on this device.
     const list = readJSON<string[]>(KEYS.emails, [])
     if (!list.includes(email.trim())) {

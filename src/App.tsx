@@ -12,6 +12,7 @@ import { useStreak } from './hooks/useStreak'
 import { getPersona } from './data/personas'
 import { questions } from './data/questions'
 import { KEYS } from './lib/storage'
+import { track } from './lib/analytics'
 
 const TOTAL_QUESTIONS = questions.length
 
@@ -41,6 +42,12 @@ export default function App() {
     const persona = getPersona(result.score)
     const percentile = percentileFor(result.score)
     const newStreak = bumpStreak()
+    track('quiz_completed', {
+      score: result.score,
+      total: result.total,
+      time_ms: result.timeMs,
+      persona: persona.id,
+    })
     // Count each developer once — replays shouldn't inflate the total.
     if (!localStorage.getItem(KEYS.counted)) {
       void incrementPlayCount()

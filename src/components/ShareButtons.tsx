@@ -1,3 +1,5 @@
+import { track } from '../lib/analytics'
+
 /** Public URL used in share links (not the dev localhost address). */
 const SITE_URL = 'https://truedevquiz.com'
 
@@ -22,13 +24,15 @@ export default function ShareButtons({
     url,
   )}&summary=${encodeURIComponent(text)}`
 
-  const open = (href: string) =>
+  const share = (method: 'x' | 'linkedin', href: string) => {
+    track('share_button_clicked', { method, score, total })
     window.open(href, '_blank', 'noopener,noreferrer,width=600,height=600')
+  }
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <button
-        onClick={() => open(twitterHref)}
+        onClick={() => share('x', twitterHref)}
         className="flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 font-body font-bold text-black transition hover:brightness-90 active:scale-[0.98]"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
@@ -37,7 +41,7 @@ export default function ShareButtons({
         Share on X
       </button>
       <button
-        onClick={() => open(linkedInHref)}
+        onClick={() => share('linkedin', linkedInHref)}
         className="flex items-center justify-center gap-2 rounded-xl bg-[#0a66c2] px-5 py-3 font-body font-bold text-white transition hover:brightness-110 active:scale-[0.98]"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden>
