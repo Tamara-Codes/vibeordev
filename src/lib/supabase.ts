@@ -17,3 +17,15 @@ export const supabase: SupabaseClient | null =
   url && anonKey ? createClient(url, anonKey) : null
 
 export const isSupabaseConfigured = supabase != null
+
+if (!isSupabaseConfigured) {
+  // Loud on purpose: this is the most common production misconfig. `.env.local`
+  // is gitignored, so a host that builds from git has no creds unless they're
+  // set in its dashboard. Without them every save silently falls back to local.
+  // eslint-disable-next-line no-console
+  console.error(
+    '[supabase] NOT configured — VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY ' +
+      'are missing from this build. Scores and the leaderboard will only use ' +
+      'localStorage. Set both in your host env vars and redeploy.',
+  )
+}
