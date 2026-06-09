@@ -1,7 +1,7 @@
 import { track } from '../lib/analytics'
 
 /** Public URL used in share links (not the dev localhost address). */
-const SITE_URL = 'https://truedevquiz.com'
+const SITE_URL = 'https://www.vibeordev.com'
 
 interface ShareButtonsProps {
   score: number
