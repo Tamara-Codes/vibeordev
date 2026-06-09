@@ -78,7 +78,8 @@ export async function submitScore(
     const { data, error } = await supabase.rpc('submit_score', {
       p_name: entry.name,
       p_score: entry.score,
-      p_time_ms: entry.timeMs,
+      // Guard the integer contract: the `time_ms` column rejects floats (22P02).
+      p_time_ms: Math.round(entry.timeMs),
       p_persona_id: entry.personaId,
       p_persona_name: entry.personaName,
       p_persona_emoji: entry.personaEmoji,

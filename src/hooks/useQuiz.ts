@@ -63,9 +63,13 @@ export function useQuiz() {
 
   const commit = useCallback((record: Omit<AnswerRecord, 'timeMs'>) => {
     // Cap at the question limit so a backgrounded tab can't blow up the total.
-    const timeMs = Math.min(
-      QUESTION_SECONDS * 1000,
-      Math.max(0, performance.now() - questionStartRef.current),
+    // Round to whole ms: performance.now() is fractional, and the Supabase
+    // `time_ms` column is an integer (a float there fails with 22P02).
+    const timeMs = Math.round(
+      Math.min(
+        QUESTION_SECONDS * 1000,
+        Math.max(0, performance.now() - questionStartRef.current),
+      ),
     )
     setAnswers((prev) => [...prev, { ...record, timeMs }])
     setPhase('feedback')
