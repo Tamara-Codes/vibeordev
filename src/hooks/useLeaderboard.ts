@@ -76,7 +76,7 @@ export function useLeaderboard() {
   const addEntry = useCallback(
     async (
       entry: Omit<LeaderboardEntry, 'id' | 'timestamp'>,
-    ): Promise<LeaderboardEntry> => {
+    ): Promise<{ entry: LeaderboardEntry; saved: boolean }> => {
       // Try the shared board first.
       const saved = await submitScore(entry)
       if (saved) {
@@ -87,10 +87,11 @@ export function useLeaderboard() {
         } else {
           setEntries((prev) => upsertLocal(prev, saved).next)
         }
-        return saved
+        return { entry: saved, saved: true }
       }
 
-      // Offline / Supabase unavailable: fall back to the local board.
+      // Offline / Supabase unavailable: fall back to the local board so the
+      // player still sees their run, but report that the shared save failed.
       const full: LeaderboardEntry = {
         ...entry,
         id: `e-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
@@ -99,7 +100,7 @@ export function useLeaderboard() {
       const { next, result } = upsertLocal(entries, full)
       setEntries(next)
       writeJSON(KEYS.leaderboard, next)
-      return result
+      return { entry: result, saved: false }
     },
     [entries],
   )

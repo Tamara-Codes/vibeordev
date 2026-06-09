@@ -23,6 +23,8 @@ interface FinishedRun {
   streak: number
   entryId: string
   weakSpots: Category[]
+  /** False when the shared (Supabase) save failed and we fell back to local. */
+  saved: boolean
 }
 
 export default function App() {
@@ -48,7 +50,7 @@ export default function App() {
         /* ignore */
       }
     }
-    const entry = await addEntry({
+    const { entry, saved } = await addEntry({
       name: playerName,
       score: result.score,
       timeMs: result.timeMs,
@@ -62,6 +64,7 @@ export default function App() {
       streak: newStreak,
       entryId: entry.id,
       weakSpots: result.weakSpots,
+      saved,
     })
     setScreen('result')
   }
@@ -118,6 +121,7 @@ export default function App() {
             topToday={topToday}
             topAllTime={topAllTime}
             currentId={run.entryId}
+            saved={run.saved}
             onPlayAgain={playAgain}
           />
         )}

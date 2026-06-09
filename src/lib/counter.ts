@@ -12,6 +12,12 @@ import { supabase } from './supabase'
 
 const COUNTER = 'plays'
 
+/** Log a soft failure so it's visible in the console rather than swallowed. */
+function logSupabaseError(op: string, error: unknown): void {
+  // eslint-disable-next-line no-console
+  console.error(`[counter] ${op} failed:`, error)
+}
+
 function toNumber(v: unknown): number | null {
   const n = typeof v === 'number' ? v : Number(v)
   return Number.isFinite(n) ? n : null
@@ -26,9 +32,13 @@ export async function getCount(): Promise<number | null> {
       .select('value')
       .eq('name', COUNTER)
       .single()
-    if (error || !data) return null
+    if (error || !data) {
+      if (error) logSupabaseError('getCount', error)
+      return null
+    }
     return toNumber(data.value)
-  } catch {
+  } catch (err) {
+    logSupabaseError('getCount', err)
     return null
   }
 }
@@ -40,9 +50,13 @@ export async function bumpCount(): Promise<number | null> {
     const { data, error } = await supabase.rpc('bump_counter', {
       counter_name: COUNTER,
     })
-    if (error) return null
+    if (error) {
+      logSupabaseError('bumpCount', error)
+      return null
+    }
     return toNumber(data)
-  } catch {
+  } catch (err) {
+    logSupabaseError('bumpCount', err)
     return null
   }
 }

@@ -6,7 +6,17 @@ import type { LeaderboardEntry } from '../types'
  * public SELECT policy; writes go through the `submit_score` RPC, which upserts
  * by name (keeping the best score). Every call fails soft — returning `null` —
  * so the hook can fall back to a local board when Supabase is unreachable.
+ *
+ * Failures are logged (never silently swallowed): a swallowed error once hid a
+ * function-signature mismatch (PGRST202) that made every save 404 while the
+ * play counter kept incrementing — plays counted, leaderboard stayed empty.
  */
+
+/** Log a soft failure so it's visible in the console (DevTools / Sentry). */
+function logSupabaseError(op: string, error: unknown): void {
+  // eslint-disable-next-line no-console
+  console.error(`[leaderboard] ${op} failed:`, error)
+}
 
 interface ScoreRow {
   id: string
@@ -48,9 +58,13 @@ export async function fetchTopScores(
       .order('time_ms', { ascending: true })
       .order('created_at', { ascending: false })
       .limit(limit)
-    if (error || !data) return null
+    if (error || !data) {
+      if (error) logSupabaseError('fetchTopScores', error)
+      return null
+    }
     return (data as ScoreRow[]).map(toEntry)
-  } catch {
+  } catch (err) {
+    logSupabaseError('fetchTopScores', err)
     return null
   }
 }
@@ -69,11 +83,15 @@ export async function submitScore(
       p_persona_name: entry.personaName,
       p_persona_emoji: entry.personaEmoji,
     })
-    if (error || !data) return null
+    if (error || !data) {
+      if (error) logSupabaseError('submitScore', error)
+      return null
+    }
     // The RPC returns the scores row (possibly wrapped in an array).
     const row = (Array.isArray(data) ? data[0] : data) as ScoreRow
     return toEntry(row)
-  } catch {
+  } catch (err) {
+    logSupabaseError('submitScore', err)
     return null
   }
 }
@@ -90,9 +108,13 @@ export async function isNameTaken(name: string): Promise<boolean | null> {
       .select('id')
       .eq('name_key', name.trim().toLowerCase())
       .limit(1)
-    if (error || !data) return null
+    if (error || !data) {
+      if (error) logSupabaseError('isNameTaken', error)
+      return null
+    }
     return data.length > 0
-  } catch {
+  } catch (err) {
+    logSupabaseError('isNameTaken', err)
     return null
   }
 }

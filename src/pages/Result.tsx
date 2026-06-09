@@ -18,6 +18,8 @@ interface ResultProps {
   topToday: LeaderboardEntry[]
   topAllTime: LeaderboardEntry[]
   currentId?: string
+  /** False when the shared leaderboard save failed (only saved locally). */
+  saved?: boolean
   onPlayAgain: () => void
 }
 
@@ -100,11 +102,22 @@ export default function Result({
   topToday,
   topAllTime,
   currentId,
+  saved = true,
   onPlayAgain,
 }: ResultProps) {
   return (
     <div className="grid w-full max-w-5xl gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
       <div className="flex flex-col gap-5">
+        {!saved && (
+          <div className="flex items-start gap-2.5 rounded-2xl border border-bad/30 bg-bad/10 p-4 text-sm text-white/80">
+            <Icon name="x" className="mt-0.5 h-4 w-4 shrink-0 text-bad" />
+            <span>
+              We couldn&apos;t save your score to the shared leaderboard just
+              now — it&apos;s saved on this device. Check your connection and
+              play again to land on the global board.
+            </span>
+          </div>
+        )}
         <ResultCard
           persona={persona}
           playerName={playerName}
