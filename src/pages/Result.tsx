@@ -3,7 +3,6 @@ import type { Category, LeaderboardEntry, Persona } from '../types'
 import ResultCard from '../components/ResultCard'
 import ShareButtons from '../components/ShareButtons'
 import Leaderboard from '../components/Leaderboard'
-import Poll from '../components/Poll'
 import Icon from '../components/icons'
 import { KEYS, readJSON, writeJSON } from '../lib/storage'
 import { addSubscriber } from '../lib/subscribers'
@@ -157,7 +156,6 @@ export default function Result({
           currentId={currentId}
           total={total}
         />
-        <Poll />
         <EmailCapture />
       </div>
     </div>

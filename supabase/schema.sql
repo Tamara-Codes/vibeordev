@@ -9,16 +9,9 @@ create table if not exists public.counters (
   value bigint not null default 0
 );
 
--- Seed the play counter and the course-topic poll options at zero. Poll votes
--- reuse this table: one counter per option, keyed `poll:<id>`.
+-- Seed the play counter at zero — the count reflects real plays only.
 insert into public.counters (name, value)
-values
-  ('plays', 0),
-  ('poll:transformers', 0),
-  ('poll:tokenization', 0),
-  ('poll:embeddings', 0),
-  ('poll:finetuning', 0),
-  ('poll:agents', 0)
+values ('plays', 0)
 on conflict (name) do nothing;
 
 alter table public.counters enable row level security;
@@ -40,8 +33,8 @@ as $$
 declare
   new_value bigint;
 begin
-  -- Upsert so a brand-new counter name (e.g. a future poll option) is created
-  -- on first use rather than silently returning null.
+  -- Upsert so a brand-new counter name is created on first use rather than
+  -- silently returning null.
   insert into public.counters (name, value)
   values (counter_name, 1)
   on conflict (name) do update set value = public.counters.value + 1
