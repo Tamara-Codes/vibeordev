@@ -40,10 +40,10 @@ export const questions: Question[] = [
     category: 'Embeddings & RAG',
     question: 'In a Retrieval-Augmented Generation (RAG) pipeline, what is actually stored in the vector database?',
     options: [
-      'The model weights for each document',
+      'A fine-tuned copy of the model weights for every indexed document',
       'Embedding vectors of text chunks, used for similarity search',
-      'The full conversation history as JSON',
-      'Pre-computed answers to likely questions',
+      'The full text of every document, indexed as searchable JSON',
+      'Pre-computed answers to every question a user might plausibly ask',
     ],
     correct: 1,
     explanation:
@@ -54,10 +54,10 @@ export const questions: Question[] = [
     category: 'Embeddings & RAG',
     question: 'Two embedding vectors point in nearly the same direction but one is twice as long. What does cosine similarity say about them?',
     options: [
-      'They are very dissimilar because the magnitudes differ',
+      'They are very dissimilar, since one vector is twice the magnitude of the other',
       'They are highly similar — cosine ignores magnitude and measures angle',
-      'Cosine similarity is undefined for different magnitudes',
-      'Similarity is exactly 0.5 because one is double the other',
+      'Cosine similarity is undefined whenever the two vectors differ in length',
+      'Similarity comes out to exactly 0.5, since one vector is double the other',
     ],
     correct: 1,
     explanation:
@@ -68,10 +68,10 @@ export const questions: Question[] = [
     category: 'Prompting',
     question: 'What does "few-shot prompting" mean?',
     options: [
-      'Asking the model the same question several times and voting',
+      'Asking the model the same question several times and taking a majority vote',
       'Including a handful of worked examples in the prompt before the real task',
-      'Limiting the model to a few output tokens',
-      'Fine-tuning on a few hundred examples',
+      'Limiting the model to generating just a few output tokens per response',
+      'Fine-tuning the model on a few hundred hand-labeled examples',
     ],
     correct: 1,
     explanation:
@@ -82,10 +82,10 @@ export const questions: Question[] = [
     category: 'Prompting',
     question: 'Chain-of-thought prompting improves results on reasoning tasks primarily because it…',
     options: [
-      'Increases the model\'s parameter count at inference',
+      'Temporarily raises the model\'s effective parameter count during that inference',
       'Lets the model spend intermediate tokens working through steps before answering',
-      'Disables the safety filter',
-      'Retrieves external documents automatically',
+      'Quietly disables the built-in safety and alignment filters for the request',
+      'Automatically retrieves supporting documents from an external knowledge base',
     ],
     correct: 1,
     explanation:
@@ -96,10 +96,10 @@ export const questions: Question[] = [
     category: 'Training & Fine-tuning',
     question: 'What is the core idea behind RLHF (Reinforcement Learning from Human Feedback)?',
     options: [
-      'Humans label data and the model is retrained from scratch each round',
+      'Humans hand-label all the data and the entire model is retrained from scratch each round',
       'A reward model trained on human preferences is used to fine-tune the policy with RL',
-      'The model plays games against itself with no human input',
-      'Humans manually edit the model weights',
+      'The model plays millions of games against itself with no human input at all',
+      'Engineers manually edit the model\'s weights to encode the desired behavior',
     ],
     correct: 1,
     explanation:
@@ -110,10 +110,10 @@ export const questions: Question[] = [
     category: 'Training & Fine-tuning',
     question: 'What does LoRA (Low-Rank Adaptation) do during fine-tuning?',
     options: [
-      'Quantizes all weights to 4-bit before training',
+      'Quantizes all of the base weights down to 4-bit precision before training',
       'Freezes the base weights and trains small low-rank update matrices instead',
-      'Prunes half the attention heads to speed things up',
-      'Distills the model into a smaller student network',
+      'Prunes roughly half of the attention heads to make training run faster',
+      'Distills the large base model down into a much smaller student network',
     ],
     correct: 1,
     explanation:
@@ -124,10 +124,10 @@ export const questions: Question[] = [
     category: 'Fundamentals',
     question: 'What is "hallucination" in the context of LLMs?',
     options: [
-      'The model crashing due to an out-of-memory error',
+      'The model crashing partway through generation due to an out-of-memory error',
       'Confidently generating plausible-sounding but false or fabricated information',
-      'A deliberate creativity mode you enable with a flag',
-      'When the model refuses to answer a question',
+      'A deliberate creativity mode you switch on with a special sampling flag',
+      'When the model flatly refuses to answer a perfectly reasonable question',
     ],
     correct: 1,
     explanation:
@@ -138,10 +138,10 @@ export const questions: Question[] = [
     category: 'Fundamentals',
     question: 'Raising the "temperature" sampling parameter generally does what to the output?',
     options: [
-      'Makes it more deterministic and repetitive',
+      'Makes the output far more deterministic, repetitive, and predictable',
       'Makes it more random and varied by flattening the token distribution',
-      'Speeds up token generation',
-      'Increases the maximum context length',
+      'Speeds up token generation by sampling from fewer candidate tokens',
+      'Increases the maximum context length the model is able to attend to',
     ],
     correct: 1,
     explanation:
@@ -152,10 +152,10 @@ export const questions: Question[] = [
     category: 'Transformers & Attention',
     question: 'Why do transformers need positional encodings?',
     options: [
-      'To compress the input and save memory',
+      'To compress the long input sequence and save substantial memory during the attention computation',
       'Because self-attention is order-agnostic and would otherwise treat input as a bag of tokens',
-      'To encrypt the prompt before processing',
-      'To convert tokens back into words',
+      'To encrypt the prompt before it is processed by the model\'s attention layers',
+      'To convert the internal tokens back into human-readable words at the very end',
     ],
     correct: 1,
     explanation:
@@ -180,10 +180,10 @@ export const questions: Question[] = [
     category: 'Models & Benchmarks',
     question: 'What does MMLU measure?',
     options: [
-      'Inference latency in milliseconds',
+      'Average inference latency per generated token, measured in milliseconds',
       'Multitask accuracy across 57 academic and professional subjects',
-      'The maximum context window in tokens',
-      'Energy consumption during training',
+      'The maximum size of the model\'s context window, measured in tokens',
+      'Total energy consumption over the course of the full training run',
     ],
     correct: 1,
     explanation:
@@ -194,10 +194,10 @@ export const questions: Question[] = [
     category: 'Agents & Tools',
     question: 'In the ReAct agent pattern, what does the model interleave?',
     options: [
-      'Reading and writing to disk',
+      'Reading from and writing to the local disk in between every generation step',
       'Reasoning traces and actions (tool calls), using observations to decide the next step',
-      'React components and Redux state',
-      'Retrieval and caching only',
+      'Rendering React UI components and dispatching Redux state, despite the name',
+      'Document retrieval combined with aggressive response caching, and nothing more than that',
     ],
     correct: 1,
     explanation:
@@ -208,10 +208,10 @@ export const questions: Question[] = [
     category: 'Agents & Tools',
     question: 'When an LLM "calls a function" via tool use, what does the model itself actually produce?',
     options: [
-      'It executes the function directly inside its weights',
+      'It executes the target function directly inside its own weights during the forward pass itself',
       'A structured request (e.g. JSON args) that your code runs, returning the result to the model',
-      'Compiled machine code for the target function',
-      'A network packet sent straight to the API',
+      'Fully compiled machine code for the target function, ready for the OS to execute',
+      'A raw network packet sent straight to the external tool\'s REST API endpoint',
     ],
     correct: 1,
     explanation:
@@ -222,10 +222,10 @@ export const questions: Question[] = [
     category: 'Tokenization',
     question: 'Why can LLMs struggle with tasks like counting the letters in a word or reversing a string?',
     options: [
-      'They run out of memory on short inputs',
+      'They quickly run out of memory even on relatively short character-level inputs',
       'They see subword tokens, not individual characters, so character-level structure is obscured',
-      'Their temperature is always too high',
-      'Tokenizers delete punctuation and spaces',
+      'Their sampling temperature is permanently hardcoded far too high for this kind of precise task',
+      'Tokenizers silently strip out all punctuation and whitespace before processing',
     ],
     correct: 1,
     explanation:
@@ -236,10 +236,10 @@ export const questions: Question[] = [
     category: 'Embeddings & RAG',
     question: 'What problem does "chunking" address when building a RAG system?',
     options: [
-      'Reducing the model\'s parameter count',
-      'Splitting long documents into retrievable, embeddable units that fit context and improve relevance',
-      'Encrypting documents at rest',
-      'Converting PDFs into images',
+      'Reducing the underlying model\'s total parameter count so that it needs far less memory',
+      'Splitting long documents into retrievable, embeddable units sized to fit the context',
+      'Encrypting all of the source documents at rest inside the vector database',
+      'Converting PDFs and other binary documents into images before indexing them',
     ],
     correct: 1,
     explanation:
@@ -250,10 +250,10 @@ export const questions: Question[] = [
     category: 'Training & Fine-tuning',
     question: 'What does the "pre-training" objective of a typical decoder-only LLM look like?',
     options: [
-      'Classifying each sentence as positive or negative',
+      'Classifying each input sentence as either positive or negative in sentiment',
       'Predicting the next token given all previous tokens (autoregressive language modeling)',
-      'Reconstructing an image from text',
-      'Matching questions to answers in a fixed database',
+      'Reconstructing the original input image from its paired text caption, one pixel at a time',
+      'Matching incoming questions to the answers stored in a large fixed database',
     ],
     correct: 1,
     explanation:
@@ -265,9 +265,9 @@ export const questions: Question[] = [
     question: "What is a model's \"context window\"?",
     options: [
       'The maximum amount of text, in tokens, the model can consider at once',
-      'The number of GPUs used to serve the model',
-      'The time limit for generating a response',
-      'The size of the dataset it was trained on',
+      'The total number of GPUs required to serve the model in production',
+      'The maximum wall-clock time allowed for generating a single response',
+      'The total size of the dataset the model was originally trained on',
     ],
     correct: 0,
     explanation:
