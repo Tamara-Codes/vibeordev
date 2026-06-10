@@ -1,22 +1,22 @@
+import type { Persona } from '../types'
+import { shareText } from '../data/personas'
 import { track } from '../lib/analytics'
 
 /** Public URL used in share links (not the dev localhost address). */
 const SITE_URL = 'https://www.vibeordev.com'
 
 interface ShareButtonsProps {
+  persona: Persona
   score: number
   total: number
-  personaName: string
-  personaEmoji: string
 }
 
 export default function ShareButtons({
+  persona,
   score,
   total,
-  personaName,
-  personaEmoji,
 }: ShareButtonsProps) {
-  const text = `I scored ${score}/${total} on the Vibe Coder or True Dev quiz — I'm${personaEmoji}${personaName}. Are you a vibe coder or do you actually know your stuff? ${SITE_URL}`
+  const text = `${shareText(persona, { score, total })} ${SITE_URL}`
   const url = SITE_URL
 
   const twitterHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`
@@ -25,7 +25,7 @@ export default function ShareButtons({
   )}&summary=${encodeURIComponent(text)}`
 
   const share = (method: 'x' | 'linkedin', href: string) => {
-    track('share_button_clicked', { method, score, total })
+    track('share_button_clicked', { method, score, total, persona: persona.id })
     window.open(href, '_blank', 'noopener,noreferrer,width=600,height=600')
   }
 

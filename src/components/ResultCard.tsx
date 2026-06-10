@@ -47,6 +47,10 @@ export default function ResultCard({
           {persona.name}
         </h1>
 
+        <p className="mx-auto mt-3 max-w-md font-body text-lg font-bold leading-snug text-white">
+          {persona.headline}
+        </p>
+
         {/* Score + percentile */}
         <div className="mt-6 flex items-center justify-center gap-3">
           <div className="rounded-2xl border border-white/10 bg-base px-6 py-3">
